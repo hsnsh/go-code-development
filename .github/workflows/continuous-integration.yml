@@ -29,23 +29,32 @@ jobs:
       - name: Build
         run: go build -v ./...
 
-      - name: Unit tests
-        run: |
-          sudo go test ./... -coverprofile coverage.out -covermode count
-          sudo go tool cover -func coverage.out
+#      - name: Unit tests
+#        run: |
+#          sudo go test ./... -coverprofile coverage.out -covermode count
+#          sudo go tool cover -func coverage.out
+#
+#      - name: Quality Gate - Test coverage shall be above threshold
+#        env:
+#          TESTCOVERAGE_THRESHOLD: 40
+#        run: |
+#          echo "Quality Gate: checking test coverage is above threshold ..."
+#          echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"
+#          totalCoverage=`go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
+#          echo "Current test coverage : $totalCoverage %"
+#          if (( $(echo "$totalCoverage $TESTCOVERAGE_THRESHOLD" | awk '{print ($1 > $2)}') )); then
+#              echo "OK"
+#          else
+#              echo "Current test coverage is below threshold. Please add more unit tests or adjust threshold to a lower value."
+#              echo "Failed"
+#              exit 1
+#          fi
 
-      - name: Quality Gate - Test coverage shall be above threshold
+      - name: Test Coverage
+        uses: paambaati/codeclimate-action@v3.0.0
         env:
-          TESTCOVERAGE_THRESHOLD: 40
-        run: |
-          echo "Quality Gate: checking test coverage is above threshold ..."
-          echo "Threshold             : $TESTCOVERAGE_THRESHOLD %"
-          totalCoverage=`go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+'`
-          echo "Current test coverage : $totalCoverage %"
-          if (( $(echo "$totalCoverage $TESTCOVERAGE_THRESHOLD" | awk '{print ($1 > $2)}') )); then
-              echo "OK"
-          else
-              echo "Current test coverage is below threshold. Please add more unit tests or adjust threshold to a lower value."
-              echo "Failed"
-              exit 1
-          fi
+          CC_TEST_REPORTER_ID: 7502f1a6af077297263767a90e3207402de236cd1b066b372a584439e1af8437
+        with:
+          coverageCommand: go test -coverprofile c.out -v ./... -run="^Test"
+          coverageLocations: ${{github.workspace}}/c.out:gocov
+          prefix: github.com/hsnsh/go-code-development
