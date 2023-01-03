@@ -26,6 +26,9 @@ jobs:
         with:
           args: --timeout=15m
 
+      - name: Build
+        run: go build -v ./...
+
       - name: Unit tests
         run: |
           sudo go test ./... -coverprofile coverage.out -covermode count
